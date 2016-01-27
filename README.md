@@ -1,5 +1,5 @@
 # AgileCamp Java Project
 
 
-[![Build status](https://api.travis-ci.org/scrumtrek/agilecamp.svg)](https://travis-ci.org/scrumtrek/agilecamp)
+[![Build status](https://api.travis-ci.org/scrumtrek/agilecamp-java.svg)](https://travis-ci.org/scrumtrek/agilecamp-java)
 [![Coverage Status](https://coveralls.io/repos/github/scrumtrek/agilecamp/badge.svg?branch=master)](https://coveralls.io/github/scrumtrek/agilecamp?branch=master)
