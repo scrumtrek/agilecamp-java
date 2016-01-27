@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HabitsService.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Habitator01</a> &gt; <a href="index.source.html" class="el_package">ru.agilecamp.habitator</a> &gt; <span class="el_source">HabitsService.java</span></div><h1>HabitsService.java</h1><pre class="source lang-java linenums">/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ru.agilecamp.habitator;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
+import javax.sql.DataSource;
+
+/**
+ *
+ * @author d_alex
+ */
+public class HabitsService {
+    private static final String ADD_HABIT_SQL = &quot;INSERT INTO HABITATOR01.HABITS (username, name) VALUES (?, ?)&quot;;
+    private static final String GET_HABITS_LIST_SQL = &quot;SELECT name FROM HABITATOR01.HABITS WHERE username = ?&quot;;
+
+    private DataSource dataSource;
+
+<span class="fc" id="L25">    public HabitsService(DataSource dataSource) {</span>
+<span class="fc" id="L26">        this.dataSource = dataSource;</span>
+<span class="fc" id="L27">    }</span>
+
+    public Set&lt;String&gt; getHabitsForUser(int userId) throws SQLException {
+<span class="nc" id="L30">        Connection connection = dataSource.getConnection();</span>
+        try {
+<span class="nc" id="L32">            PreparedStatement ps = connection.prepareStatement(GET_HABITS_LIST_SQL);</span>
+<span class="nc" id="L33">            ps.setInt(1, userId);</span>
+<span class="nc" id="L34">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L35">            Set&lt;String&gt; list = new HashSet&lt;String&gt;();</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            while(rs.next()){</span>
+<span class="nc" id="L37">                list.add(rs.getString(&quot;name&quot;));</span>
+            }
+<span class="nc" id="L39">            return list;</span>
+        } finally {
+<span class="nc" id="L41">            connection.close();</span>
+        }
+    }
+
+    public void addHabit(int userId, String habitName) throws SQLException {
+<span class="fc" id="L46">        Connection connection = dataSource.getConnection();</span>
+
+        try {
+<span class="fc" id="L49">            PreparedStatement ps = connection.prepareStatement(ADD_HABIT_SQL);</span>
+
+<span class="fc" id="L51">            ps.setInt(1, userId);</span>
+<span class="fc" id="L52">            ps.setString(2, habitName);</span>
+
+<span class="fc" id="L54">            ps.execute();</span>
+        } finally {
+<span class="pc" id="L56">            connection.close();</span>
+<span class="fc" id="L57">        }</span>
+<span class="fc" id="L58">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

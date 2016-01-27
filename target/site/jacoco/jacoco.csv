@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Habitator01,ru.agilecamp.habitator,FrontController,349,0,18,0,83,0,20,0,11,0
+Habitator01,ru.agilecamp.habitator,UserService,26,105,5,5,2,31,5,4,0,4
+Habitator01,ru.agilecamp.habitator,HabitsException,4,0,0,0,2,0,1,0,1,0
+Habitator01,ru.agilecamp.habitator,HabitsService,45,29,2,0,9,11,2,2,1,2

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Habitator01</a> &gt; <a href="index.source.html" class="el_package">ru.agilecamp.habitator</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package ru.agilecamp.habitator;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.sql.DataSource;
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author d_alex
+ */
+public class UserService {
+
+    private DataSource dataSource;
+    private static final String IS_USER_EXISTS_SQL = &quot;SELECT id FROM HABITATOR01.USERS WHERE name = ?&quot;;
+    private static final String ADD_USER_SQL = &quot;INSERT INTO HABITATOR01.USERS (name, password) VALUES (?, ?)&quot;;
+    private static final String DROP_USER_SQL = &quot;DELETE FROM HABITATOR01.USERS WHERE id = ?&quot;;
+    private static final String LOGIN_SQL = &quot;SELECT id FROM HABITATOR01.USERS WHERE name = ? AND password = ?&quot;;
+
+<span class="fc" id="L25">    public UserService(DataSource dataSource) {</span>
+<span class="fc" id="L26">        this.dataSource = dataSource;</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Register new user
+     *
+     * @param login - user login
+     * @param password - user password
+     * @param passwordAgain - user password again
+     * @throws HabitsException
+     */
+    public void registerUser(String login, String password, String passwordAgain) throws HabitsException, SQLException {
+<span class="pc bpc" id="L38" title="3 of 6 branches missed.">        if (login.length() &gt; 0 &amp;&amp; password.length() &gt; 0 &amp;&amp; password.equals(passwordAgain)) {</span>
+<span class="fc" id="L39">            Connection connection = dataSource.getConnection();</span>
+            try {
+<span class="fc" id="L41">                PreparedStatement ps = connection.prepareStatement(IS_USER_EXISTS_SQL);</span>
+<span class="fc" id="L42">                ps.setString(1, login);</span>
+<span class="fc" id="L43">                ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L45">                    throw new HabitsException(&quot;user already exists&quot;);</span>
+                } else {
+<span class="fc" id="L47">                    ps = connection.prepareStatement(ADD_USER_SQL);</span>
+<span class="fc" id="L48">                    ps.setString(1, login);</span>
+<span class="fc" id="L49">                    ps.setString(2, password);</span>
+<span class="fc" id="L50">                    ps.execute();</span>
+                }
+            } finally {
+<span class="pc" id="L53">                connection.close();</span>
+<span class="fc" id="L54">            }</span>
+<span class="fc" id="L55">        } else {</span>
+<span class="nc" id="L56">            throw new HabitsException(&quot;Password not equals another password or login is empty&quot;);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * authenticate user
+     *
+     * @param login
+     * @param password
+     * @return user id
+     */
+    public Integer authentication(String login, String password) throws SQLException {
+<span class="fc" id="L68">        Connection connection = dataSource.getConnection();</span>
+
+        try {
+<span class="fc" id="L71">            PreparedStatement ps = connection.prepareStatement(LOGIN_SQL);</span>
+
+<span class="fc" id="L73">            ps.setString(1, login);</span>
+<span class="fc" id="L74">            ps.setString(2, password);</span>
+
+<span class="fc" id="L76">            ResultSet result = ps.executeQuery();</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">            return result.next() ? result.getInt(&quot;id&quot;) : null;</span>
+        } finally {
+<span class="pc" id="L79">            connection.close();</span>
+        }
+    }
+
+    /**
+     * Drop user
+     *
+     * @param id - user id
+     */
+    public void dropUser(int userId) throws SQLException {
+<span class="fc" id="L89">        Connection connection = dataSource.getConnection();</span>
+        try {
+<span class="fc" id="L91">            PreparedStatement ps = connection.prepareStatement(DROP_USER_SQL);</span>
+<span class="fc" id="L92">            ps.setInt(1, userId);</span>
+<span class="fc" id="L93">            ps.execute();</span>
+        } finally {
+<span class="pc" id="L95">            connection.close();</span>
+<span class="fc" id="L96">        }</span>
+<span class="fc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

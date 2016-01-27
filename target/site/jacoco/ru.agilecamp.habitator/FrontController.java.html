@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FrontController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Habitator01</a> &gt; <a href="index.source.html" class="el_package">ru.agilecamp.habitator</a> &gt; <span class="el_source">FrontController.java</span></div><h1>FrontController.java</h1><pre class="source lang-java linenums">package ru.agilecamp.habitator;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+
+@SuppressWarnings(&quot;serial&quot;)
+@WebServlet(&quot;/do&quot;)
+<span class="nc" id="L20">public class FrontController extends HttpServlet {</span>
+
+    public static final String INDEXJSP = &quot;index.jsp&quot;;
+    public static final String LOGINJSP = &quot;login.jsp&quot;;
+    public static final String REGISTRATION_FORMJSP = &quot;registration_form.jsp&quot;;
+    public static final String MY_HABITSJSP = &quot;my_habits.jsp&quot;;
+    @Resource(name = &quot;jdbc/TestDB&quot;)
+    private DataSource dataSource;
+    private UserService userService;
+    private HabitsService habitsService;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+<span class="nc" id="L33">        super.init(config);</span>
+<span class="nc" id="L34">        userService = new UserService(dataSource);</span>
+<span class="nc" id="L35">        habitsService = new HabitsService(dataSource);</span>
+<span class="nc" id="L36">    }</span>
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L40">        String action = request.getParameter(&quot;action&quot;);</span>
+<span class="nc" id="L41">        Logger.getLogger(FrontController.class.getName()).log(Level.INFO, &quot;action: &quot; + action);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (&quot;login&quot;.equals(action)) {</span>
+<span class="nc" id="L43">            login(request, response);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        } else if (&quot;register&quot;.equals(action)) {</span>
+<span class="nc" id="L45">            registerNewUser(request, response);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        } else if (request.getSession().getAttribute(&quot;isLoggedIn&quot;).equals(true)) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (&quot;logout&quot;.equals(action)) {</span>
+<span class="nc" id="L48">                logout(request, response);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            } else if (&quot;my_habits&quot;.equals(action)) {</span>
+<span class="nc" id="L50">                habitsList(request, response);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            } else if (&quot;add_habit&quot;.equals(action)) {</span>
+<span class="nc" id="L52">                addHabit(request, response);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            } else if (&quot;drop_account&quot;.equals(action)) {</span>
+<span class="nc" id="L54">                dropUser(request, response);</span>
+            } else {
+<span class="nc" id="L56">                redirectTo(request, response, INDEXJSP);</span>
+            }
+        } else {
+<span class="nc" id="L59">            redirectTo(request, response, INDEXJSP);</span>
+        }
+<span class="nc" id="L61">    }</span>
+
+    private void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L64">        request.getSession().invalidate();</span>
+<span class="nc" id="L65">        redirectTo(request, response, INDEXJSP);</span>
+<span class="nc" id="L66">    }</span>
+
+    private void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+<span class="nc" id="L70">            String login = request.getParameter(&quot;name&quot;);</span>
+<span class="nc" id="L71">            String password = request.getParameter(&quot;password&quot;);</span>
+
+<span class="nc" id="L73">            Integer userId = userService.authentication(login, password);</span>
+
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (userId == null) {</span>
+<span class="nc" id="L76">                redirectTo(request, response, LOGINJSP);</span>
+            } else {
+<span class="nc" id="L78">                request.getSession().setAttribute(&quot;username&quot;, userId);</span>
+<span class="nc" id="L79">                request.getSession().setAttribute(&quot;isLoggedIn&quot;, true);</span>
+
+<span class="nc" id="L81">                redirectTo(request, response, INDEXJSP);</span>
+            }
+<span class="nc" id="L83">        } catch (SQLException e) {</span>
+<span class="nc" id="L84">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, e);</span>
+<span class="nc" id="L85">            throw new ServletException(e);</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+
+    private void registerNewUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L90">        String login = request.getParameter(&quot;name&quot;);</span>
+<span class="nc" id="L91">        String password = request.getParameter(&quot;password&quot;);</span>
+<span class="nc" id="L92">        String passwordAgain = request.getParameter(&quot;password_again&quot;);</span>
+        try {
+<span class="nc" id="L94">            userService.registerUser(login, password, passwordAgain);</span>
+
+<span class="nc" id="L96">            request.getRequestDispatcher(INDEXJSP).forward(request, response);</span>
+<span class="nc" id="L97">        } catch (HabitsException ex) {</span>
+<span class="nc" id="L98">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, ex);</span>
+
+<span class="nc" id="L100">            redirectTo(request, response, REGISTRATION_FORMJSP);</span>
+<span class="nc" id="L101">        } catch (SQLException ex) {</span>
+<span class="nc" id="L102">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L103">            throw new ServletException(ex);</span>
+<span class="nc" id="L104">        }</span>
+<span class="nc" id="L105">    }</span>
+
+    private void dropUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+<span class="nc" id="L109">            Integer userId = getCurrentUserId(request);</span>
+
+<span class="nc" id="L111">            userService.dropUser(userId);</span>
+<span class="nc" id="L112">            logout(request, response);</span>
+
+<span class="nc" id="L114">            redirectTo(request, response, INDEXJSP);</span>
+<span class="nc" id="L115">        } catch (SQLException ex) {</span>
+<span class="nc" id="L116">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L117">            throw new ServletException(ex);</span>
+<span class="nc" id="L118">        }</span>
+<span class="nc" id="L119">    }</span>
+
+    private void habitsList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        try {
+<span class="nc" id="L123">            Set&lt;String&gt; myHabits = habitsService.getHabitsForUser(getCurrentUserId(request));</span>
+<span class="nc" id="L124">            request.setAttribute(&quot;data&quot;, myHabits);</span>
+<span class="nc" id="L125">        } catch (SQLException e) {</span>
+<span class="nc" id="L126">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, e);</span>
+<span class="nc" id="L127">            throw new ServletException(e);</span>
+<span class="nc" id="L128">        }</span>
+<span class="nc" id="L129">        request.getRequestDispatcher(MY_HABITSJSP).forward(request, response);</span>
+<span class="nc" id="L130">    }</span>
+
+    private void addHabit(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L133">        String habitName = request.getParameter(&quot;habit&quot;);</span>
+<span class="nc" id="L134">        Integer userId = getCurrentUserId(request);</span>
+        try {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (habitName.length() &gt; 0) {</span>
+<span class="nc" id="L137">                habitsService.addHabit(userId, habitName);</span>
+
+<span class="nc" id="L139">                redirectTo(request, response, INDEXJSP);</span>
+            } else {
+<span class="nc" id="L141">                redirectTo(request, response, &quot;add_habit.jsp&quot;);</span>
+            }
+<span class="nc" id="L143">        } catch (SQLException e) {</span>
+<span class="nc" id="L144">            Logger.getLogger(FrontController.class.getName()).log(Level.SEVERE, null, e);</span>
+<span class="nc" id="L145">            throw new ServletException(e);</span>
+<span class="nc" id="L146">        }</span>
+<span class="nc" id="L147">    }</span>
+
+    private Integer getCurrentUserId(HttpServletRequest request) {
+<span class="nc" id="L150">        return (Integer) request.getSession().getAttribute(&quot;username&quot;);</span>
+    }
+
+    private void redirectTo(HttpServletRequest request, HttpServletResponse response, String jspName) throws ServletException, IOException {
+<span class="nc" id="L154">        request.getRequestDispatcher(jspName).forward(request, response);</span>
+<span class="nc" id="L155">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
