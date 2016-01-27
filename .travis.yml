@@ -1,0 +1,6 @@
+language: java
+notifications:
+  email: false
+sudo: false
+install: true
+script: mvn clean compile test jacoco:report coveralls:report
