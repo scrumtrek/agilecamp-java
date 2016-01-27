@@ -3,4 +3,4 @@ notifications:
   email: false
 sudo: false
 install: true
-script: mvn clean compile test jacoco:report coveralls:report
+script: mvn clean compile test war:war jacoco:report coveralls:report
